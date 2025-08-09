@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
 import { ShoppingCart, Check } from 'lucide-react';
+import { PLACEHOLDER_IMAGES } from '../utils/placeholderImage';
 
 type Product = {
   _id: string;
@@ -37,7 +38,7 @@ const ProductCard: React.FC<{ product: Product; viewMode?: 'grid' | 'list' }> = 
                 alt={product.name} 
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  e.currentTarget.src = 'https://via.placeholder.com/300x200?text=No+Image';
+                  e.currentTarget.src = PLACEHOLDER_IMAGES.medium;
                 }}
               />
             ) : (
@@ -121,7 +122,7 @@ const ProductCard: React.FC<{ product: Product; viewMode?: 'grid' | 'list' }> = 
             alt={product.name} 
             className="w-full h-48 object-cover"
             onError={(e) => {
-              e.currentTarget.src = 'https://via.placeholder.com/300x200?text=No+Image';
+              e.currentTarget.src = PLACEHOLDER_IMAGES.medium;
             }}
           />
         ) : (

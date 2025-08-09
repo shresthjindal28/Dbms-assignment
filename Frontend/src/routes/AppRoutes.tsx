@@ -4,6 +4,8 @@ import Home from '../pages/Home';
 import Store from '../pages/Store';
 import OrderTracking from '../pages/OrderTracking';
 import AdminDashboard from '../pages/AdminDashboard';
+import Checkout from '../pages/Checkout';
+import UserOrders from '../pages/UserOrders';
 import NotFound from '../pages/NotFound';
 import Layout from '../components/Layout';
 import { SignedIn, SignIn, SignUp } from '@clerk/clerk-react';
@@ -20,6 +22,8 @@ const AppRoutes: React.FC = () => (
         <Route path="/" element={<Home />} />
         <Route path="/store" element={<Store />} />
         <Route path="/track" element={<OrderTracking />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/orders" element={<UserOrders />} />
         <Route path="/admin" element={
           <ProtectedRoute>
             <AdminDashboard />

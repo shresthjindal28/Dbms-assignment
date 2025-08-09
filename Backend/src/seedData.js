@@ -127,7 +127,7 @@ const sampleProducts = [
 const seedDatabase = async () => {
   try {
     // Connect to MongoDB
-    await mongoose.connect('mongodb://localhost:27017/solo-seller-marketplace', {
+    await mongoose.connect('mongodb://localhost:27017/soloseller', {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });

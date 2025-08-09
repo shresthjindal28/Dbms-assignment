@@ -13,7 +13,12 @@ export const createOrder = async (data: OrderData) => {
   return res.data;
 };
 
+export const getUserOrders = async (email: string) => {
+  const response = await axiosInstance.get(`/orders/user?email=${email}`);
+  return response.data;
+};
+
 export const trackOrder = async (orderId: string, email: string) => {
-  const res = await axiosInstance.get(`/orders/track?orderId=${orderId}&email=${email}`);
-  return res.data;
+  const response = await axiosInstance.get(`/orders/track?orderId=${orderId}&email=${email}`);
+  return response.data;
 };

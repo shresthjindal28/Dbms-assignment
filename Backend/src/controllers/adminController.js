@@ -6,7 +6,7 @@ const bcrypt = require('bcrypt');
 
 exports.getAnalytics = async (req, res) => {
   try {
-    const totalSales = await Order.countDocuments();
+    const totalOrders = await Order.countDocuments();
     const totalProducts = await Product.countDocuments();
     const totalViews = await Product.aggregate([
       { $group: { _id: null, total: { $sum: '$views' } } }
@@ -18,7 +18,7 @@ exports.getAnalytics = async (req, res) => {
     ]);
 
     res.json({ 
-      totalSales, 
+      totalOrders, 
       totalProducts,
       totalViews: totalViews[0]?.total || 0,
       totalRevenue: totalRevenue[0]?.total || 0,

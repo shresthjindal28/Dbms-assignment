@@ -3,35 +3,65 @@ const Product = require('../models/Product');
 const { getRedis } = require('../config/redis');
 const dummyPaymentService = require('../services/dummyPaymentService');
 
-// Create order (with stock lock and dummy payment)
+// Create cart order (with stock lock and dummy payment)
 exports.createOrder = async (req, res) => {
-  const { productId, userEmail } = req.body;
+  const { items, userEmail, shippingAddress } = req.body;
   const redis = getRedis();
+  
   try {
-    // Stock lock: atomic decrement
-    const lockKey = `lock:product:${productId}`;
-    const isLocked = await redis.set(lockKey, 1, 'NX', 'EX', 10);
-    if (!isLocked) return res.status(409).json({ error: 'Product is being purchased by someone else' });
-    const product = await Product.findById(productId);
-    if (!product || product.stock < 1) {
-      await redis.del(lockKey);
-      return res.status(400).json({ error: 'Out of stock' });
+    // Validate items
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: 'Items are required' });
     }
-    // Dummy payment: always success
-    const payment = await dummyPaymentService.createOrder(product.price || 100); // fallback price
-    // Mark product as sold
-    product.stock = 0;
-    await product.save();
+
+    // Calculate total and validate stock
+    let totalAmount = 0;
+    const orderItems = [];
+    
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      if (!product) {
+        return res.status(400).json({ error: `Product ${item.productId} not found` });
+      }
+      
+      if (product.stock < item.quantity) {
+        return res.status(400).json({ error: `Insufficient stock for ${product.name}` });
+      }
+      
+      totalAmount += product.price * item.quantity;
+      orderItems.push({
+        product: item.productId,
+        quantity: item.quantity,
+        price: product.price
+      });
+    }
+
+    // Create dummy payment
+    const payment = await dummyPaymentService.createOrder(totalAmount);
+
+    // Update stock for all products
+    for (const item of items) {
+      const product = await Product.findById(item.productId);
+      product.stock -= item.quantity;
+      await product.save();
+    }
+
+    // Clear cache
     await redis.del('products');
+
+    // Create order
     const order = new Order({
-      product: productId,
+      items: orderItems,
       userEmail,
-  paymentId: payment.id,
+      totalAmount,
+      paymentId: payment.id,
+      shippingAddress
     });
+    
     await order.save();
-    await redis.del(lockKey);
     res.status(201).json(order);
   } catch (err) {
+    console.error('Order creation error:', err);
     res.status(500).json({ error: 'Order failed' });
   }
 };
@@ -40,7 +70,7 @@ exports.createOrder = async (req, res) => {
 exports.trackOrder = async (req, res) => {
   const { orderId, email } = req.query;
   try {
-    const order = await Order.findOne({ _id: orderId, userEmail: email }).populate('product');
+    const order = await Order.findOne({ _id: orderId, userEmail: email }).populate('items.product');
     if (!order) return res.status(404).json({ error: 'Order not found' });
     res.json(order);
   } catch (err) {
@@ -48,10 +78,29 @@ exports.trackOrder = async (req, res) => {
   }
 };
 
+// Get orders for a specific user
+exports.getUserOrders = async (req, res) => {
+  const { email } = req.query;
+  try {
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+    
+    const orders = await Order.find({ userEmail: email })
+      .populate('items.product')
+      .sort({ createdAt: -1 });
+    
+    res.json(orders);
+  } catch (err) {
+    console.error('Error fetching user orders:', err);
+    res.status(500).json({ error: 'Server error' });
+  }
+};
+
 // Admin: get all orders
 exports.getOrders = async (req, res) => {
   try {
-    const orders = await Order.find().populate('product');
+    const orders = await Order.find().populate('items.product');
     res.json(orders);
   } catch (err) {
     res.status(500).json({ error: 'Server error' });

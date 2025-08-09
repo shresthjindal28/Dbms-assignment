@@ -48,6 +48,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
                 </Link>
                 <SignedIn>
                   <Link
+                    to="/orders"
+                    className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
+                      isActive('/orders') 
+                        ? 'bg-blue-100 text-blue-700' 
+                        : 'text-gray-700 hover:text-blue-600 hover:bg-blue-50'
+                    }`}
+                  >
+                    My Orders
+                  </Link>
+                </SignedIn>
+                <SignedIn>
+                  <Link
                     to="/admin"
                     className={`px-3 py-2 rounded-md text-sm font-medium transition-colors duration-200 ${
                       isActive('/admin') 
@@ -125,13 +137,18 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
               <h4 className="text-sm font-semibold text-gray-900 mb-4">Quick Links</h4>
               <ul className="space-y-2">
                 <li>
-                  <Link to="/" className="text-gray-600 text-sm hover:text-blue-600 transition-colors duration-200">
+                  <Link to="/store" className="text-gray-600 text-sm hover:text-blue-600 transition-colors duration-200">
                     Store
                   </Link>
                 </li>
                 <li>
                   <Link to="/track" className="text-gray-600 text-sm hover:text-blue-600 transition-colors duration-200">
                     Track Order
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/orders" className="text-gray-600 text-sm hover:text-blue-600 transition-colors duration-200">
+                    My Orders
                   </Link>
                 </li>
                 <li>

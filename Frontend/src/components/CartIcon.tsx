@@ -1,11 +1,14 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
+import { useNavigate } from 'react-router-dom';
 import { X, ShoppingCart, Trash2, Plus, Minus } from 'lucide-react';
+import { PLACEHOLDER_IMAGES } from '../utils/placeholderImage';
 
 const CartIcon: React.FC = () => {
   const { state, removeItem, updateQuantity, clearCart } = useCart();
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
 
   const handleQuantityChange = (id: string, newQuantity: number) => {
     if (newQuantity === 0) {
@@ -85,7 +88,7 @@ const CartIcon: React.FC = () => {
                         className="flex items-center space-x-3 p-3 bg-gray-50 rounded-lg"
                       >
                         <img
-                          src={item.image || 'https://via.placeholder.com/60x60?text=No+Image'}
+                          src={item.image || PLACEHOLDER_IMAGES.small}
                           alt={item.name}
                           className="w-12 h-12 object-cover rounded"
                         />
@@ -136,7 +139,10 @@ const CartIcon: React.FC = () => {
                       Clear Cart
                     </button>
                     <button
-                      onClick={() => setIsOpen(false)}
+                      onClick={() => {
+                        setIsOpen(false);
+                        navigate('/checkout');
+                      }}
                       className="flex-1 py-2 px-4 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors duration-200"
                     >
                       Checkout
