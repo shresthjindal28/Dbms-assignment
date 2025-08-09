@@ -1,147 +1,762 @@
 const mongoose = require('mongoose');
 const Product = require('./models/Product');
+require('dotenv').config();
 
-const sampleProducts = [
+// Helper to generate random products
+// List of specific products with relevant names, images, and descriptions
+const productTemplates = [
   {
-    name: 'Wireless Bluetooth Headphones',
-    description: 'High-quality wireless headphones with active noise cancellation, 30-hour battery life, and premium sound quality. Perfect for music lovers and professionals.',
-    price: 99.99,
-    image: 'https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400',
-    stock: 50,
-    views: 0,
-    category: 'Electronics',
-    brand: 'AudioTech'
+    "id": 1,
+    "name": "Eco-friendly Paintings Coaster",
+    "description": "This eco-friendly coaster is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
   },
   {
-    name: 'Smart Fitness Watch',
-    description: 'Advanced fitness tracking with heart rate monitoring, GPS navigation, sleep analysis, and 7-day battery life. Water-resistant and compatible with all smartphones.',
-    price: 199.99,
-    image: 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400',
-    stock: 25,
-    views: 0,
-    category: 'Wearables',
-    brand: 'FitTech'
+    "id": 2,
+    "name": "Elegant Woodcraft Lamp",
+    "description": "This elegant lamp is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/2081203/pexels-photo-2081203.jpeg?auto=compress&w=600&h=600&fit=crop", // Painting 5
   },
   {
-    name: 'Portable Bluetooth Speaker',
-    description: 'Waterproof portable speaker with 360-degree surround sound, 20-hour battery life, and built-in microphone for hands-free calls. Perfect for outdoor adventures.',
-    price: 79.99,
-    image: 'https://images.unsplash.com/photo-1608043152269-423dbba4e7e1?w=400',
-    stock: 30,
-    views: 0,
-    category: 'Electronics',
-    brand: 'SoundWave'
+    "id": 3,
+    "name": "Luxury Woodcraft Bag",
+    "description": "This luxury bag is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/461436/pexels-photo-461436.jpeg?auto=compress&w=600&h=600&fit=crop", // Coaster 3
   },
   {
-    name: 'Wireless Charging Pad',
-    description: 'Fast wireless charging pad compatible with all Qi-enabled devices. 15W fast charging, LED indicator, and sleek design. Charges phones, earbuds, and smartwatches.',
-    price: 29.99,
-    image: 'https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=400',
-    stock: 100,
-    views: 0,
-    category: 'Accessories',
-    brand: 'ChargePro'
+    "id": 4,
+    "name": "Vintage Resin Art Wallet",
+    "description": "This vintage wallet is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/1799436/pexels-photo-1799436.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
   },
   {
-    name: 'USB-C Laptop Charger',
-    description: '65W fast charging USB-C adapter for laptops and mobile devices. Compact design, multiple safety protections, and universal compatibility.',
-    price: 49.99,
-    image: 'https://images.unsplash.com/photo-1601972599720-36938d4ecd31?w=400',
-    stock: 75,
-    views: 0,
-    category: 'Accessories',
-    brand: 'PowerTech'
+    "id": 5,
+    "name": "Modern Woodcraft Scarf",
+    "description": "This modern scarf is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/461437/pexels-photo-461437.jpeg?auto=compress&w=600&h=600&fit=crop", // Bowl 4
   },
   {
-    name: 'Mechanical Gaming Keyboard',
-    description: 'RGB mechanical keyboard with customizable switches, macro keys, and premium build quality. Perfect for gaming and productivity with tactile feedback.',
-    price: 129.99,
-    image: 'https://images.unsplash.com/photo-1541140532154-b024d705b90a?w=400',
-    stock: 20,
-    views: 0,
-    category: 'Gaming',
-    brand: 'GameMaster'
+    "id": 6,
+    "name": "Bohemian Glass Art Bowl",
+    "description": "This bohemian bowl is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
   },
   {
-    name: '4K Ultra HD Smart TV',
-    description: '55-inch 4K Ultra HD Smart TV with HDR, built-in streaming apps, and voice control. Crystal clear picture quality and immersive sound experience.',
-    price: 599.99,
-    image: 'https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=400',
-    stock: 15,
-    views: 0,
-    category: 'Electronics',
-    brand: 'VisionTech'
+    "id": 7,
+    "name": "Rustic Resin Art Painting",
+    "description": "This rustic painting is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/2081199/pexels-photo-2081199.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/1374128/pexels-photo-1374128.jpeg?auto=compress&w=600&h=600&fit=crop", // Bracelet 4
   },
   {
-    name: 'Wireless Gaming Mouse',
-    description: 'High-precision wireless gaming mouse with 25K DPI sensor, customizable RGB lighting, and 70-hour battery life. Perfect for competitive gaming.',
-    price: 89.99,
-    image: 'https://images.unsplash.com/photo-1527864550417-7fd91fc51a46?w=400',
-    stock: 35,
-    views: 0,
-    category: 'Gaming',
-    brand: 'GameMaster'
+    "id": 8,
+    "name": "Luxury Knitted Clothing Lamp",
+    "description": "This luxury lamp is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
   },
   {
-    name: 'Smart Home Security Camera',
-    description: '1080p HD security camera with night vision, motion detection, and two-way audio. Connects to your smartphone for remote monitoring.',
-    price: 79.99,
-    image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400',
-    stock: 40,
-    views: 0,
-    category: 'Smart Home',
-    brand: 'SecureHome'
+    "id": 9,
+    "name": "Minimalist Leather Goods Lamp",
+    "description": "This minimalist lamp is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+  "image": "https://images.pexels.com/photos/271818/pexels-photo-271818.jpeg?auto=compress&w=600&h=600&fit=crop", // Lamp 3
   },
   {
-    name: 'Portable Power Bank',
-    description: '20,000mAh portable power bank with fast charging, multiple USB ports, and LED display. Charges phones, tablets, and laptops on the go.',
-    price: 39.99,
-    image: 'https://images.unsplash.com/photo-1609592806596-b43bada2f2d2?w=400',
-    stock: 60,
-    views: 0,
-    category: 'Accessories',
-    brand: 'PowerTech'
+    "id": 10,
+    "name": "Elegant Glass Art Scarf",
+    "description": "This elegant scarf is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Scarf",
+    "stock": 1
   },
   {
-    name: 'Bluetooth Earbuds',
-    description: 'True wireless earbuds with active noise cancellation, 24-hour battery life, and premium sound quality. Perfect for workouts and daily use.',
-    price: 149.99,
-    image: 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400',
-    stock: 45,
-    views: 0,
-    category: 'Electronics',
-    brand: 'AudioTech'
+    "id": 11,
+    "name": "Bohemian Paintings Painting",
+    "description": "This bohemian painting is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
   },
   {
-    name: 'Gaming Headset',
-    description: '7.1 surround sound gaming headset with noise-canceling microphone, RGB lighting, and comfortable memory foam ear cushions.',
-    price: 119.99,
-    image: 'https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400',
-    stock: 30,
-    views: 0,
-    category: 'Gaming',
-    brand: 'GameMaster'
+    "id": 12,
+    "name": "Luxury Home Decor Coaster",
+    "description": "This luxury coaster is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/1799439/pexels-photo-1799439.jpeg?auto=compress&w=600&h=600&fit=crop", // Wallet 4
+  },
+  {
+    "id": 13,
+    "name": "Artisan Embroidery Bowl",
+    "description": "This artisan bowl is a one-of-a-kind embroidery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 14,
+    "name": "Unique Resin Art Bowl",
+    "description": "This unique bowl is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 15,
+    "name": "Minimalist Leather Goods Bracelet",
+    "description": "This minimalist bracelet is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bracelet",
+    "stock": 1
+  },
+  {
+    "id": 16,
+    "name": "Vintage Ceramic Pottery Lamp",
+    "description": "This vintage lamp is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/271816/pexels-photo-271816.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/934072/pexels-photo-934072.jpeg?auto=compress&w=600&h=600&fit=crop", // Scarf 3
+  },
+  {
+    "id": 17,
+    "name": "Rustic Woodcraft Bracelet",
+    "description": "This rustic bracelet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bracelet",
+    "stock": 1
+  },
+  {
+    "id": 18,
+    "name": "Luxury Knitted Clothing Vase",
+    "description": "This luxury vase is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=600&h=600&fit=crop",
+  "image": "https://images.pexels.com/photos/1191534/pexels-photo-1191534.jpeg?auto=compress&w=600&h=600&fit=crop", // Necklace 4
+  },
+  {
+    "id": 19,
+    "name": "Luxury Home Decor Vase",
+    "description": "This luxury vase is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 20,
+    "name": "Luxury Glass Art Painting",
+    "description": "This luxury painting is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 21,
+    "name": "Vintage Embroidery Bracelet",
+    "description": "This vintage bracelet is a one-of-a-kind embroidery item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/1374125/pexels-photo-1374125.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 22,
+    "name": "Luxury Resin Art Vase",
+    "description": "This luxury vase is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 23,
+    "name": "Minimalist Glass Art Painting",
+    "description": "This minimalist painting is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 24,
+    "name": "Bohemian Leather Goods Bowl",
+    "description": "This bohemian bowl is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 25,
+    "name": "Modern Paintings Bag",
+    "description": "This modern bag is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/322207/pexels-photo-322207.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 26,
+    "name": "Eco-friendly Glass Art Coaster",
+    "description": "This eco-friendly coaster is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Coaster",
+    "stock": 1
+  },
+  {
+    "id": 27,
+    "name": "Luxury Woodcraft Wallet",
+    "description": "This luxury wallet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/1799436/pexels-photo-1799436.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 28,
+    "name": "Modern Home Decor Bag",
+    "description": "This modern bag is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 29,
+    "name": "Modern Woodcraft Scarf",
+    "description": "This modern scarf is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/934070/pexels-photo-934070.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 30,
+    "name": "Eco-friendly Woodcraft Wallet",
+    "description": "This eco-friendly wallet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 31,
+    "name": "Bohemian Home Decor Necklace",
+    "description": "This bohemian necklace is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/1191535/pexels-photo-1191535.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 32,
+    "name": "Artisan Leather Goods Bracelet",
+    "description": "This artisan bracelet is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bracelet",
+    "stock": 1
+  },
+  {
+    "id": 33,
+    "name": "Unique Handmade Jewelry Bracelet",
+    "description": "This unique bracelet is a one-of-a-kind handmade jewelry item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/1374129/pexels-photo-1374129.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 34,
+    "name": "Unique Home Decor Bag",
+    "description": "This unique bag is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 35,
+    "name": "Rustic Embroidery Painting",
+    "description": "This rustic painting is a one-of-a-kind embroidery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/2081204/pexels-photo-2081204.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 36,
+    "name": "Minimalist Woodcraft Bag",
+    "description": "This minimalist bag is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 37,
+    "name": "Bohemian Leather Goods Necklace",
+    "description": "This bohemian necklace is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/1191536/pexels-photo-1191536.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 38,
+    "name": "Eco-friendly Leather Goods Necklace",
+    "description": "This eco-friendly necklace is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
+  },
+  {
+    "id": 39,
+    "name": "Bohemian Paintings Bowl",
+    "description": "This bohemian bowl is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/461438/pexels-photo-461438.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 40,
+    "name": "Rustic Ceramic Pottery Scarf",
+    "description": "This rustic scarf is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Scarf",
+    "stock": 1
+  },
+  {
+    "id": 41,
+    "name": "Elegant Home Decor Scarf",
+    "description": "This elegant scarf is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/934073/pexels-photo-934073.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 42,
+    "name": "Eco-friendly Resin Art Painting",
+    "description": "This eco-friendly painting is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/2081199/pexels-photo-2081199.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 43,
+    "name": "Artisan Glass Art Bag",
+    "description": "This artisan bag is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/322211/pexels-photo-322211.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 44,
+    "name": "Minimalist Handmade Jewelry Bowl",
+    "description": "This minimalist bowl is a one-of-a-kind handmade jewelry item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 45,
+    "name": "Rustic Leather Goods Painting",
+    "description": "This rustic painting is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/2081205/pexels-photo-2081205.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 46,
+    "name": "Modern Home Decor Vase",
+    "description": "This modern vase is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/461382/pexels-photo-461382.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 47,
+    "name": "Eco-friendly Ceramic Pottery Bag",
+    "description": "This eco-friendly bag is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/322212/pexels-photo-322212.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 48,
+    "name": "Bohemian Woodcraft Bracelet",
+    "description": "This bohemian bracelet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/1374125/pexels-photo-1374125.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 49,
+    "name": "Modern Home Decor Bracelet",
+    "description": "This modern bracelet is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/1374130/pexels-photo-1374130.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 50,
+    "name": "Vintage Woodcraft Lamp",
+    "description": "This vintage lamp is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://images.pexels.com/photos/322213/pexels-photo-322213.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 51,
+    "name": "Bohemian Glass Art Painting",
+    "description": "This bohemian painting is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 52,
+    "name": "Luxury Home Decor Bowl",
+    "description": "This luxury bowl is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 53,
+    "name": "Eco-friendly Home Decor Necklace",
+    "description": "This eco-friendly necklace is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+  "image": "https://images.pexels.com/photos/1191531/pexels-photo-1191531.jpeg?auto=compress&w=600&h=600&fit=crop",
+    "stock": 1
+  },
+  {
+    "id": 54,
+    "name": "Modern Knitted Clothing Bowl",
+    "description": "This modern bowl is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 55,
+    "name": "Unique Glass Art Wallet",
+    "description": "This unique wallet is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 56,
+    "name": "Artisan Glass Art Bowl",
+    "description": "This artisan bowl is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 57,
+    "name": "Modern Leather Goods Necklace",
+    "description": "This modern necklace is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
+  },
+  {
+    "id": 58,
+    "name": "Modern Glass Art Bag",
+    "description": "This modern bag is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 59,
+    "name": "Artisan Resin Art Bowl",
+    "description": "This artisan bowl is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 60,
+    "name": "Eco-friendly Resin Art Lamp",
+    "description": "This eco-friendly lamp is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 61,
+    "name": "Unique Woodcraft Lamp",
+    "description": "This unique lamp is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 62,
+    "name": "Vintage Ceramic Pottery Lamp",
+    "description": "This vintage lamp is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 63,
+    "name": "Vintage Leather Goods Bowl",
+    "description": "This vintage bowl is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 64,
+    "name": "Unique Leather Goods Painting",
+    "description": "This unique painting is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 65,
+    "name": "Modern Home Decor Bag",
+    "description": "This modern bag is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 66,
+    "name": "Artisan Glass Art Painting",
+    "description": "This artisan painting is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 67,
+    "name": "Unique Home Decor Coaster",
+    "description": "This unique coaster is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Coaster",
+    "stock": 1
+  },
+  {
+    "id": 68,
+    "name": "Minimalist Home Decor Vase",
+    "description": "This minimalist vase is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 69,
+    "name": "Rustic Leather Goods Bag",
+    "description": "This rustic bag is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 70,
+    "name": "Bohemian Leather Goods Painting",
+    "description": "This bohemian painting is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 71,
+    "name": "Unique Resin Art Wallet",
+    "description": "This unique wallet is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 72,
+    "name": "Artisan Resin Art Bowl",
+    "description": "This artisan bowl is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 73,
+    "name": "Vintage Ceramic Pottery Lamp",
+    "description": "This vintage lamp is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 74,
+    "name": "Bohemian Knitted Clothing Wallet",
+    "description": "This bohemian wallet is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 75,
+    "name": "Minimalist Glass Art Scarf",
+    "description": "This minimalist scarf is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Scarf",
+    "stock": 1
+  },
+  {
+    "id": 76,
+    "name": "Unique Resin Art Lamp",
+    "description": "This unique lamp is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 77,
+    "name": "Rustic Leather Goods Bag",
+    "description": "This rustic bag is a one-of-a-kind leather goods item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 78,
+    "name": "Bohemian Woodcraft Wallet",
+    "description": "This bohemian wallet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 79,
+    "name": "Unique Woodcraft Wallet",
+    "description": "This unique wallet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 80,
+    "name": "Modern Home Decor Coaster",
+    "description": "This modern coaster is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Coaster",
+    "stock": 1
+  },
+  {
+    "id": 81,
+    "name": "Modern Paintings Vase",
+    "description": "This modern vase is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 82,
+    "name": "Unique Glass Art Vase",
+    "description": "This unique vase is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 83,
+    "name": "Bohemian Knitted Clothing Painting",
+    "description": "This bohemian painting is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Painting",
+    "stock": 1
+  },
+  {
+    "id": 84,
+    "name": "Luxury Woodcraft Bracelet",
+    "description": "This luxury bracelet is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bracelet",
+    "stock": 1
+  },
+  {
+    "id": 85,
+    "name": "Vintage Handmade Jewelry Wallet",
+    "description": "This vintage wallet is a one-of-a-kind handmade jewelry item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 86,
+    "name": "Luxury Knitted Clothing Wallet",
+    "description": "This luxury wallet is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Wallet",
+    "stock": 1
+  },
+  {
+    "id": 87,
+    "name": "Elegant Embroidery Necklace",
+    "description": "This elegant necklace is a one-of-a-kind embroidery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
+  },
+  {
+    "id": 88,
+    "name": "Luxury Handmade Jewelry Necklace",
+    "description": "This luxury necklace is a one-of-a-kind handmade jewelry item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
+  },
+  {
+    "id": 89,
+    "name": "Luxury Paintings Vase",
+    "description": "This luxury vase is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 90,
+    "name": "Luxury Knitted Clothing Bowl",
+    "description": "This luxury bowl is a one-of-a-kind knitted clothing item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 91,
+    "name": "Eco-friendly Paintings Scarf",
+    "description": "This eco-friendly scarf is a one-of-a-kind paintings item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Scarf",
+    "stock": 1
+  },
+  {
+    "id": 92,
+    "name": "Eco-friendly Ceramic Pottery Necklace",
+    "description": "This eco-friendly necklace is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
+  },
+  {
+    "id": 93,
+    "name": "Vintage Ceramic Pottery Bag",
+    "description": "This vintage bag is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 94,
+    "name": "Luxury Resin Art Bowl",
+    "description": "This luxury bowl is a one-of-a-kind resin art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 95,
+    "name": "Rustic Handmade Jewelry Bowl",
+    "description": "This rustic bowl is a one-of-a-kind handmade jewelry item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bowl",
+    "stock": 1
+  },
+  {
+    "id": 96,
+    "name": "Minimalist Woodcraft Lamp",
+    "description": "This minimalist lamp is a one-of-a-kind woodcraft item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Lamp",
+    "stock": 1
+  },
+  {
+    "id": 97,
+    "name": "Rustic Ceramic Pottery Vase",
+    "description": "This rustic vase is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Vase",
+    "stock": 1
+  },
+  {
+    "id": 98,
+    "name": "Artisan Home Decor Bag",
+    "description": "This artisan bag is a one-of-a-kind home decor item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bag",
+    "stock": 1
+  },
+  {
+    "id": 99,
+    "name": "Artisan Ceramic Pottery Bracelet",
+    "description": "This artisan bracelet is a one-of-a-kind ceramic pottery item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Bracelet",
+    "stock": 1
+  },
+  {
+    "id": 100,
+    "name": "Artisan Glass Art Necklace",
+    "description": "This artisan necklace is a one-of-a-kind glass art item, handcrafted with attention to detail and quality materials.",
+    "image": "https://source.unsplash.com/600x600/?Necklace",
+    "stock": 1
   }
 ];
 
+function getRandomInt(min, max) {
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+
+
+function generateProductFromTemplate(template) {
+  return {
+    name: template.name,
+    description: template.description,
+    price: parseFloat((getRandomInt(10, 1000) + Math.random()).toFixed(2)),
+    image: template.image,
+    stock: getRandomInt(1, 100),
+    views: getRandomInt(0, 1000),
+    category: template.category,
+    brand: template.brand,
+    isActive: true
+  };
+}
+
+// Generate products from templates, repeat templates if less than 100
+const sampleProducts = Array.from({ length: 100 }, (_, i) => {
+  const template = productTemplates[i % productTemplates.length];
+  // Optionally, add a suffix to name/description for uniqueness if repeated
+  const product = generateProductFromTemplate(template);
+  if (i >= productTemplates.length) {
+    product.name += ` (${i + 1})`;
+    product.description += ` (Batch item ${i + 1})`;
+  }
+  return product;
+});
+
 const seedDatabase = async () => {
   try {
-    // Connect to MongoDB
-    await mongoose.connect('mongodb://localhost:27017/soloseller', {
+    // Connect to MongoDB Atlas using env variable
+    const mongoUri = process.env.MONGO_URI;
+    await mongoose.connect(mongoUri, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
     });
-    
-    console.log('Connected to MongoDB');
-    
+    console.log('Connected to MongoDB Atlas');
+
     // Clear existing products
     await Product.deleteMany({});
     console.log('Cleared existing products');
-    
-    // Insert sample products
+
+    // Insert 100 dummy products
     const products = await Product.insertMany(sampleProducts);
     console.log(`Inserted ${products.length} products`);
-    
+
     console.log('Database seeded successfully!');
     process.exit(0);
   } catch (error) {
