@@ -86,10 +86,14 @@ exports.getUserOrders = async (req, res) => {
       return res.status(400).json({ error: 'Email is required' });
     }
     
-    const orders = await Order.find({ userEmail: email })
+    console.log('Fetching orders for email:', email);
+    const orders = await Order.find({ userEmail: { $regex: `^${email}$`, $options: 'i' } })
       .populate('items.product')
       .sort({ createdAt: -1 });
-    
+    console.log('Orders found:', orders.length);
+    if (orders.length > 0) {
+      console.log('Order emails:', orders.map(o => o.userEmail));
+    }
     res.json(orders);
   } catch (err) {
     console.error('Error fetching user orders:', err);

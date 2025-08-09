@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import { Package, Clock, Truck, CheckCircle, AlertCircle, Search, Filter } from 'lucide-react';
 import { PLACEHOLDER_IMAGES } from '../utils/placeholderImage';
@@ -31,35 +32,32 @@ interface Order {
 }
 
 const UserOrders: React.FC = () => {
+  const { isSignedIn, user } = useUser();
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
 
+
   useEffect(() => {
-    fetchOrders();
-  }, []);
+    if (isSignedIn !== undefined) {
+      fetchOrders();
+    }
+    // eslint-disable-next-line
+  }, [isSignedIn]);
 
   const fetchOrders = async () => {
     try {
       setLoading(true);
       setError(null);
-      // Try to get user email from localStorage or from cart context (if available)
-      let userEmail = '';
-      if (typeof window !== 'undefined') {
-        userEmail = localStorage.getItem('userEmail') || '';
-      }
-      // fallback: try to get from cart context if available
-      if (!userEmail && typeof window !== 'undefined' && (window as any).__CART_USER_EMAIL__) {
-        userEmail = (window as any).__CART_USER_EMAIL__;
-      }
-      if (!userEmail) {
+      if (!isSignedIn || !user?.primaryEmailAddress?.emailAddress) {
         setError('User not logged in.');
         setLoading(false);
         return;
       }
-      const data = await getUserOrders(userEmail);
+      const email = user.primaryEmailAddress.emailAddress;
+      const data = await getUserOrders(email);
       setOrders(data);
     } catch (err) {
       console.error('Error fetching orders:', err);

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useUser } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useCart } from '../contexts/CartContext';
@@ -10,9 +11,10 @@ const Checkout: React.FC = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const { user } = useUser();
+  const userEmail = user?.emailAddresses[0]?.emailAddress || '';
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
     address: '',
     city: '',
     postalCode: '',
@@ -47,7 +49,7 @@ const Checkout: React.FC = () => {
             productId: item._id,
             quantity: item.quantity
           })),
-          userEmail: formData.email,
+          userEmail: userEmail,
           shippingAddress: {
             name: formData.name,
             address: formData.address,
@@ -65,8 +67,8 @@ const Checkout: React.FC = () => {
 
       setPaymentSuccess(true);
       // Store user email in localStorage for orders page
-      if (formData.email) {
-        localStorage.setItem('userEmail', formData.email);
+      if (userEmail) {
+        localStorage.setItem('userEmail', userEmail);
       }
       clearCart();
 
@@ -189,10 +191,9 @@ const Checkout: React.FC = () => {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
-                    required
-                    value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    value={userEmail}
+                    disabled
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
                   />
                 </div>
               </div>
