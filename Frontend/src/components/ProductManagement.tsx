@@ -8,11 +8,10 @@ import {
   Search, 
   Filter,
   Package,
-  DollarSign,
   TrendingUp,
   AlertTriangle
 } from 'lucide-react';
-import { useAuth } from '@clerk/clerk-react';
+// ...existing code...
 import { 
   getAllProducts, 
   deleteProduct, 
@@ -54,7 +53,7 @@ const ProductManagement: React.FC = () => {
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [showProductForm, setShowProductForm] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | undefined>(undefined);
-  const { getToken } = useAuth();
+  // ...existing code...
 
   useEffect(() => {
     loadData();

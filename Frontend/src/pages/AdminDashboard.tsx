@@ -1,21 +1,34 @@
 
 import React, { useState, useEffect } from 'react';
+// Define the Analytics type based on used properties
+interface Analytics {
+  totalRevenue: number;
+  totalOrders: number;
+  totalProducts: number;
+  totalViews: number;
+  mostViewed?: {
+    image?: string;
+    name?: string;
+    views?: number;
+    price?: number;
+  };
+}
 import { getAnalytics } from '../api/admin';
-import { useAuth, useUser } from '@clerk/clerk-react';
-import { BarChart3, TrendingUp, Package, DollarSign, Users, ShoppingCart, Activity, Settings } from 'lucide-react';
+import { useUser } from '@clerk/clerk-react';
+import { BarChart3, TrendingUp, Package, DollarSign, ShoppingCart, Activity } from 'lucide-react';
 import { motion } from 'framer-motion';
 import ProductManagement from '../components/ProductManagement';
 import ProductForm from '../components/ProductForm';
 
 
 const AdminDashboard: React.FC = () => {
-  const [analytics, setAnalytics] = useState<any>(null);
+  const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'overview' | 'products'>('overview');
   const [showProductForm, setShowProductForm] = useState(false);
+
   const [editingProductId, setEditingProductId] = useState<string | undefined>(undefined);
-  const { getToken } = useAuth();
   const { user } = useUser();
 
   useEffect(() => {
@@ -81,15 +94,14 @@ const AdminDashboard: React.FC = () => {
     loadAnalytics();
   };
 
-  const handleEditProduct = (productId: string) => {
-    setEditingProductId(productId);
-    setShowProductForm(true);
-  };
+  // ...existing code...
 
   const handleAddProduct = () => {
     setEditingProductId(undefined);
     setShowProductForm(true);
   };
+
+  // Removed unused handleEditProduct
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">

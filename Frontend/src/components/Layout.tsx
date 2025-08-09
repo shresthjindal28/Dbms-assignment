@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { SignedIn, SignedOut, SignIn, SignUp, UserButton, useUser } from '@clerk/clerk-react';
+import { SignedIn, SignedOut, UserButton, useUser } from '@clerk/clerk-react';
 import { motion } from 'framer-motion';
 import CartIcon from './CartIcon';
 

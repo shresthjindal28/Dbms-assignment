@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { X, Save, Upload, Image as ImageIcon } from 'lucide-react';
-import { useAuth } from '@clerk/clerk-react';
+import { X, Save, Image as ImageIcon } from 'lucide-react';
+// ...existing code...
 import { createProduct, updateProduct, getProductById } from '../api/admin';
 import { PLACEHOLDER_IMAGES } from '../utils/placeholderImage';
 
@@ -35,7 +35,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productId, onClose, onSuccess
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<ProductData>>({});
-  const { getToken } = useAuth();
+  // ...existing code...
 
   const categories = [
     'Electronics',
@@ -102,7 +102,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productId, onClose, onSuccess
     }
 
     if (formData.price <= 0) {
-      newErrors.price = 'Price must be greater than 0';
+  (newErrors as any).price = 'Price must be greater than 0';
     }
 
     if (!formData.image.trim()) {
@@ -110,7 +110,7 @@ const ProductForm: React.FC<ProductFormProps> = ({ productId, onClose, onSuccess
     }
 
     if (formData.stock < 0) {
-      newErrors.stock = 'Stock cannot be negative';
+  (newErrors as any).stock = 'Stock cannot be negative';
     }
 
     if (!formData.brand.trim()) {

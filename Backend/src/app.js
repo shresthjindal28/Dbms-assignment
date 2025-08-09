@@ -13,8 +13,11 @@ const authRoutes = require('./routes/authRoutes');
 
 const app = express();
 
-// Simple CORS configuration - allow all origins
-app.use(cors());
+// CORS configuration - allow only https://solo-seller.netlify.app
+app.use(cors({
+  origin: 'https://solo-seller.netlify.app',
+  credentials: true
+}));
 
 app.use(express.json());
 app.use(morgan('dev'));
