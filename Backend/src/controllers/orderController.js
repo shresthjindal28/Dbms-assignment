@@ -64,13 +64,9 @@ exports.verifyPaymentAndSetOutOfStock = async (req, res) => {
     if (paymentResult.status !== 'success') {
       return res.status(400).json({ error: 'Payment verification failed' });
     }
-    // Set stock = 0 for each product in the order
+    // Delete each product in the order from the database
     for (const item of order.items) {
-      const product = await Product.findById(item.product);
-      if (product) {
-        product.stock = 0;
-        await product.save();
-      }
+      await Product.findByIdAndDelete(item.product);
     }
     // Clear cache
     await redis.del('products');
