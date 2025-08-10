@@ -719,7 +719,7 @@ function generateProductFromTemplate(template) {
     description: template.description,
     price: parseFloat((getRandomInt(10, 1000) + Math.random()).toFixed(2)),
     image: template.image,
-    stock: getRandomInt(1, 100),
+    stock: 1,
     views: getRandomInt(0, 1000),
     category: template.category,
     brand: template.brand,

@@ -37,7 +37,8 @@ exports.getProductById = async (req, res) => {
 
 exports.createProduct = async (req, res) => {
   try {
-    const product = new Product(req.body);
+    const productData = { ...req.body, stock: 1 };
+    const product = new Product(productData);
     await product.save();
     const redis = getRedis();
     if (redis) {
@@ -52,7 +53,8 @@ exports.createProduct = async (req, res) => {
 
 exports.updateProduct = async (req, res) => {
   try {
-    const product = await Product.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const updateData = { ...req.body, stock: 1 };
+    const product = await Product.findByIdAndUpdate(req.params.id, updateData, { new: true });
     if (!product) return res.status(404).json({ error: 'Not found' });
     const redis = getRedis();
     if (redis) {
