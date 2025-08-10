@@ -39,7 +39,7 @@ const Checkout: React.FC = () => {
       await new Promise(resolve => setTimeout(resolve, 2000));
 
       // Create a single order with all cart items
-      const response = await fetch('http://localhost:5001/api/orders', {
+  const response = await fetch(`${import.meta.env.VITE_API_URL}/api/orders`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
